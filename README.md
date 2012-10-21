@@ -1,10 +1,10 @@
 # ![TodoMVC](https://raw.github.com/addyosmani/todomvc/gh-pages/media/logo.png)
 
-## with Monocle MVC framework
+## with Monocle MVC framework in only 102 lines
 
 Developers these days are spoiled with choice when it comes to selecting an MV\* framework for structuring and organizing JavaScript web apps. Backbone, Ember, AngularJS, Spine... the list of new and stable solutions goes on and on, but just how do you decide on which to use in a sea of so many options?
 
-## I introduce myself, I'm Monocle and I'll help you to create amazing Apps with CoffeeScript.
+## I'm Monocle and I'll help you to create amazing Apps with CoffeeScript.
 
 ### Friend of my friends
 I'm built to work with the most famous libraries of the web development. If your project is desktop you can use me with jQuery and if on the contrary it is a mobile project I will perfectly mixed with QuoJS or Zepto.
