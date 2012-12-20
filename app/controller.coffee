@@ -14,14 +14,12 @@ class TodoCtrl extends Monocle.Controller
 
   constructor: ->
     super
-    __Model.Todo.bind "create", @bindCreate
+    __Model.Todo.bind "create", @filterTodos
     __Model.Todo.bind "change", @bindChange
     __Model.Todo.bind "error", @bindError
     @bindChange()
 
   bindError: (todo, error) -> alert error
-
-  bindCreate: (todo) => @appendTodo todo
 
   bindChange: (todo) =>
     @pending.text __Model.Todo.active().length
@@ -39,15 +37,19 @@ class TodoCtrl extends Monocle.Controller
 
   onFilter: (event) ->
     @filters.removeClass "selected"
-    filter = Monocle.Dom(event.currentTarget).addClass "selected"
-    @filterTodos filter.html().toLowerCase()
+    filter = @filterName Monocle.Dom(event.currentTarget).addClass "selected"
+    @filterTodos filter
 
-  filterTodos: (filter = "all") ->
+  filterTodos: () =>
     @items.html " "
+    filter = @filterName @filters.filter(".selected")
     @appendTodo todo for todo in __Model.Todo[filter]()
 
   appendTodo: (todo) ->
     view = new __View.Task model: todo
     view.append todo
+
+  filterName: (el) ->
+    el.html().toLowerCase()
 
 __Controller.Todos = new TodoCtrl('section#todoapp')
