@@ -1,6 +1,6 @@
-/* QuoJS v2.3.0 - 1/29/2013
+/* QuoJS v2.3.3 - 3/4/2013
    http://quojs.tapquo.com
-   Copyright (c) 2013 Tapquo S.L. - Licensed MIT */
+   Copyright (c) 2013 Javi Jimenez Villar (@soyjavi) - Licensed MIT */
 
 var Quo;
 
@@ -448,6 +448,9 @@ window.Quo = Quo;
 
 (function($$) {
   $$.fn.attr = function(name, value) {
+    if (this.length === 0) {
+      null;
+    }
     if ($$.toType(name) === "string" && value === void 0) {
       return this[0].getAttribute(name);
     } else {
@@ -531,11 +534,21 @@ window.Quo = Quo;
     type = $$.toType(value);
     if (value || type === "number" || type === "string") {
       return this.each(function() {
+        var element, _i, _len, _results;
         if (type === "string" || type === "number") {
           return this.innerHTML = value;
         } else {
           this.innerHTML = null;
-          return this.appendChild(value);
+          if (type === "array") {
+            _results = [];
+            for (_i = 0, _len = value.length; _i < _len; _i++) {
+              element = value[_i];
+              _results.push(this.appendChild(element));
+            }
+            return _results;
+          } else {
+            return this.appendChild(value);
+          }
         }
       });
     } else {
@@ -734,7 +747,7 @@ window.Quo = Quo;
         if (serialize !== character) {
           serialize += "&";
         }
-        serialize += parameter + "=" + parameters[parameter];
+        serialize += "" + (encodeURIComponent(parameter)) + "=" + (encodeURIComponent(parameters[parameter]));
       }
     }
     if (serialize === character) {
@@ -811,7 +824,7 @@ window.Quo = Quo;
 
 
 (function($$) {
-  var ELEMENT_ID, EVENTS_DESKTOP, EVENT_METHODS, HANDLERS, READY_EXPRESSION, SHORTCUTS, _createProxy, _createProxyCallback, _environmentEvent, _findHandlers, _getElementId, _subscribe, _unsubscribe;
+  var ELEMENT_ID, EVENTS_DESKTOP, EVENT_METHODS, HANDLERS, READY_EXPRESSION, _createProxy, _createProxyCallback, _environmentEvent, _findHandlers, _getElementId, _subscribe, _unsubscribe;
   ELEMENT_ID = 1;
   HANDLERS = {};
   EVENT_METHODS = {
@@ -828,13 +841,6 @@ window.Quo = Quo;
     orientationchange: "resize"
   };
   READY_EXPRESSION = /complete|loaded|interactive/;
-  SHORTCUTS = ["tap"];
-  SHORTCUTS.forEach(function(event) {
-    $$.fn[event] = function(callback) {
-      return $$(document.body).delegate(this.selector, event, callback);
-    };
-    return this;
-  });
   $$.fn.on = function(event, selector, callback) {
     if (selector === "undefined" || $$.toType(selector) === "function") {
       return this.bind(event, selector);
@@ -976,7 +982,7 @@ window.Quo = Quo;
   };
   _findHandlers = function(element_id, event, fn, selector) {
     return (HANDLERS[element_id] || []).filter(function(handler) {
-      return handler && (!event || handler.event === event) && (!fn || handler.fn === fn) && (!selector || handler.selector === selector);
+      return handler && (!event || handler.event === event) && (!fn || handler.callback === fn) && (!selector || handler.selector === selector);
     });
   };
   return _createProxy = function(event) {
@@ -1008,11 +1014,14 @@ window.Quo = Quo;
   CURRENT_TOUCH = [];
   TOUCH_TIMEOUT = void 0;
   HOLD_DELAY = 650;
-  GESTURES = ["doubleTap", "hold", "swipe", "swiping", "swipeLeft", "swipeRight", "swipeUp", "swipeDown", "rotate", "rotating", "rotateLeft", "rotateRight", "pinch", "pinching", "pinchIn", "pinchOut", "drag", "dragLeft", "dragRight", "dragUp", "dragDown"];
+  GESTURES = ["touch", "tap", "singleTap", "doubleTap", "hold", "swipe", "swiping", "swipeLeft", "swipeRight", "swipeUp", "swipeDown", "rotate", "rotating", "rotateLeft", "rotateRight", "pinch", "pinching", "pinchIn", "pinchOut", "drag", "dragLeft", "dragRight", "dragUp", "dragDown"];
   GESTURES.forEach(function(event) {
     $$.fn[event] = function(callback) {
-      return this.on(event, callback);
+      var event_name;
+      event_name = event === "touch" ? "touchend" : event;
+      return $$(document.body).delegate(this.selector, event_name, callback);
     };
+    return this;
   });
   $$(document).ready(function() {
     return _listenTouches();
@@ -1089,6 +1098,7 @@ window.Quo = Quo;
   };
   _onTouchEnd = function(event) {
     var anyevent, drag_direction, pinch_direction, rotation_direction, swipe_direction;
+    _trigger("touch");
     if (GESTURE.fingers === 1) {
       if (GESTURE.taps === 2 && GESTURE.gap) {
         _trigger("doubleTap");
